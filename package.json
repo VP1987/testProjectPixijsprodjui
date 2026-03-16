@@ -1,0 +1,19 @@
+{
+  "name": "softgames-assignment",
+  "version": "1.0.0",
+  "description": "SoftGames Game Developer Assignment - PixiJS v7",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "pinia": "^3.0.4",
+    "pixi.js": "^7.4.2"
+  },
+  "devDependencies": {
+    "@pinia/testing": "^1.0.3",
+    "typescript": "^5.4.5",
+    "vite": "^5.2.10"
+  }
+}

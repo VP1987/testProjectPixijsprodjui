@@ -1,0 +1,53 @@
+# PixiJS Game Project Documentation
+
+## Overview
+This project is a 2D game developed using PixiJS v7 and TypeScript. It utilizes Vite for fast building and development, and Pinia for global state management outside of a traditional Vue.js environment. The architecture heavily borrows from Domain-Driven Design (DDD) and modular feature-based structures to ensure high maintainability and scalability.
+
+## Tech Stack
+- **Engine:** PixiJS (v7)
+- **Language:** TypeScript
+- **Bundler:** Vite
+- **State Management:** Pinia (Standalone)
+- **Architecture:** Feature-Based / DDD (Domain-Driven Design)
+
+## Project Structure
+
+### `/src`
+The root of all source code.
+
+#### `/src/core`
+Contains all the foundational systems, utilities, and base classes that are shared across the entire application.
+- **`/assets`**: Contains the `AssetManifest.ts` used by PixiJS `Assets` API to load bundles and assets.
+- **`/cards`**: Core card game mechanics. Includes animations, deck builders, domain entities (`CardEntity`), factories, and layout logic.
+- **`/infrastructure`**: Low-level systems like `TextureFactory` and `FontManager`.
+- **`/systems`**: Core game loop and management systems.
+  - `GameRunner.ts`: The main entry point for the PixiJS application. Handles initialization, resize events, and the main ticker.
+  - `SceneManager.ts` & `SceneTransitionManager.ts`: Handles routing between different scenes.
+  - `ViewportScaler.ts`: Manages responsive scaling.
+  - `debug/`: FPS and Particle counters for development.
+- **`/utils`**: Error logging and helper functions.
+
+#### `/src/features`
+Contains distinct, encapsulated game modules or minigames. Each feature is isolated and has its own presentation, state, and logic.
+- **`AceOfShadows/`**: Contains its own `presentation` (Scene, Layout), `services` (CardMovement, GameLoop), `store` (Pinia state), and `data` (Repositories).
+- **`FlamesOfPhoenix/`**: Focuses on particle effects (`FireEffect`, `ParticleFly`) and presentation.
+- **`MagicWords/`**: Contains domain logic (`MagicWordsEntity`), services (`MagicWordsApiService`), presentation, and store.
+- **`MiniGame/`**: A complex solitaire-like feature with its own animations, logic (`SolitaireLogic`), layout managers, tutorial services, and Pinia store.
+
+#### `/src/loading` & `/src/menu`
+Dedicated folders for the initial loading screen and the main menu screen. They follow a similar structure with presentation (`Scene`), components (e.g., `MenuButtonComponent`, `ProgressBarComponent`), and layout handlers.
+
+#### `/src/main.ts`
+The application entry point. Initializes Pinia and instantiates the `GameRunner`.
+
+## Best Practices & Patterns Used
+1. **Separation of Concerns:** The code is strictly divided into Core (engine logic) and Features (gameplay logic).
+2. **Domain-Driven Design (DDD) Elements:** Inside `features/`, code is divided into `presentation`, `domain`, `services`, `infrastructure` (data), and `store`.
+3. **Dependency Injection & Singleton:** Factories and Managers (like `FontManager`, `TextureFactory`) are initialized early and provide services globally or via injection.
+4. **State Management:** Using Pinia allows for decoupled state management, making testing and cross-scene data sharing easier.
+5. **Responsive Design:** `ViewportScaler` and layout managers handle resizing dynamically.
+
+## Getting Started
+1. Run `npm install` to install dependencies.
+2. Run `npm run dev` to start the development server via Vite.
+3. Run `npm run build` to compile TypeScript and build the project for production.

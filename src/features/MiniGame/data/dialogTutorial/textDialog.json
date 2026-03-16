@@ -1,0 +1,19 @@
+{
+  "steps": [
+    {
+      "characterId": 1,
+      "name": "Little Girl",
+      "text": "Hi! Benji is hungry. Can you help me find some treats for him?"
+    },
+    {
+      "characterId": 2,
+      "name": "Granny",
+      "text": "Don’t you worry, dear — he’s eaten my pancakes now, but I’ll deal with him!"
+    },
+    {
+      "characterId": 1,
+      "name": "Little Girl",
+      "text": "Look! There's one over there. Click on the card to pick it up!"
+    }
+  ]
+}
