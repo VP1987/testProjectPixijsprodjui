@@ -36,6 +36,13 @@ export class ParticleCounter {
     }
   }
 
+  public static reset(): void {
+    this.trackedEmitters = [];
+    if (this.text) {
+      this.text.text = "Particles: 0";
+    }
+  }
+
   public static update(width: number): void {
     if (!this.text) return;
 

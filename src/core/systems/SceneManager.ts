@@ -1,6 +1,7 @@
 import * as PIXI from "pixi.js";
 import type { IScene, SceneId } from "@/core/types/index";
 import { ErrorLogger } from "@/core/utils/ErrorLogger";
+import { ParticleCounter } from "@/core/systems/debug/ParticleCounter";
 
 export class SceneManager {
   private readonly container: PIXI.Container;
@@ -26,6 +27,8 @@ export class SceneManager {
   }
 
   navigateTo(id: SceneId): void {
+    ParticleCounter.reset();
+
     if (this.currentScene) {
       this.currentScene.onExit();
       const oldContainer = this.getSceneContainer(this.currentScene);

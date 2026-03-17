@@ -15,13 +15,22 @@ import { MiniGameController } from "@/features/MiniGame/services/MiniGameControl
 import { useMiniGameStore } from "@/features/MiniGame/store/MiniGameStore";
 import { GameSceneButton } from "@/core/ui/GameSceneButton";
 import { CardTextureFactory } from "@/core/cards/factories/CardTextureFactory";
-import { SolitaireLogic, INITIAL_TABLEAU_NODES } from "@/features/MiniGame/domain/SolitaireLogic";
+import {
+  SolitaireLogic,
+  INITIAL_TABLEAU_NODES,
+} from "@/features/MiniGame/domain/SolitaireLogic";
 import { BitmapTextComponent } from "@/core/ui/BitmapTextComponent";
 import { CardStackManager } from "@/core/cards/deck/CardStackManager";
-import { cardFlyAnimationDurationSeconds, cardFlipAnimationDurationSeconds } from "@/features/MiniGame/constants";
+import {
+  cardFlyAnimationDurationSeconds,
+  cardFlipAnimationDurationSeconds,
+} from "@/features/MiniGame/constants";
 import { TextWinAnimation } from "@/features/MiniGame/animation/TextWinAnimation";
 import { MiniGameUiLayoutHandler } from "@/features/MiniGame/presentation/layout/MiniGameUiLayoutHandler";
-import { TutorialService, TutorialStep } from "@/features/MiniGame/services/TutorialService";
+import {
+  TutorialService,
+  TutorialStep,
+} from "@/features/MiniGame/services/TutorialService";
 import { CardPulseAnimation } from "@/features/MiniGame/animation/CardPulseAnimation";
 import { FontManager } from "@/core/infrastructure/FontManager";
 import { LocalFonts } from "@/features/MiniGame/fonts/LocalFonts";
@@ -74,7 +83,7 @@ export class MiniGameScene implements IScene {
     const stackIds = [
       "drawPile",
       "activePile",
-      ...INITIAL_TABLEAU_NODES.map((_, i) => `tableau-${i}`)
+      ...INITIAL_TABLEAU_NODES.map((_, i) => `tableau-${i}`),
     ];
     this.stackManager = new CardStackManager(stackIds);
 
@@ -125,8 +134,8 @@ export class MiniGameScene implements IScene {
       }),
       {
         flyDuration: cardFlyAnimationDurationSeconds,
-        flipDuration: cardFlipAnimationDurationSeconds
-      }
+        flipDuration: cardFlipAnimationDurationSeconds,
+      },
     );
 
     try {
@@ -146,29 +155,37 @@ export class MiniGameScene implements IScene {
 
       if (!this.miniGameStore.isBuilt) {
         this.cardTextures = CardTextureFactory.create();
-        
-        this.goalText = new BitmapTextComponent("menuSubtitleFont", "GOAL: 18", true);
+
+        this.goalText = new BitmapTextComponent(
+          "menuSubtitleFont",
+          "GOAL: 18",
+          true,
+        );
         this.goalText.scale.set(0.5);
         this.debugLayer.addChild(this.goalText);
 
         const logicalSize = this.viewport.getLogicalSize();
         this.buildScene(logicalSize.width, logicalSize.height);
 
-        this.tutorialService = new TutorialService(this.tutorialLayer, this.animationEngine, this.app, () => {
-          this.isTutorialActive = false;
-          this.stopPulse();
-          this.miniGameController.getTableau().forEach(t => {
-            t.viewModel.sprite.tint = 0xffffff;
-          });
-        });
-        
+        this.tutorialService = new TutorialService(
+          this.tutorialLayer,
+          this.animationEngine,
+          this.app,
+          () => {
+            this.isTutorialActive = false;
+            this.stopPulse();
+            this.miniGameController.getTableau().forEach((t) => {
+              (t.viewModel.sprite as PIXI.Sprite).tint = 0xffffff;
+            });
+          },
+        );
+
         this.isTutorialActive = true;
         this.tutorialService.start();
       }
 
       this.onResize(window.innerWidth, window.innerHeight);
-    } catch (error) {
-    }
+    } catch (error) {}
   }
 
   private buildScene(w: number, h: number): void {
@@ -182,9 +199,13 @@ export class MiniGameScene implements IScene {
 
     const cards: CardViewModel[] = deckEntities.map((entity) => {
       const card = this.cardFactory.createCard(
-        entity.id, entity.suit, entity.value,
-        this.cardTextures!.back, this.cardTextures!.face,
-        this.cardTextures!.ranks[entity.value], this.cardTextures!.suits[entity.suit]
+        entity.id,
+        entity.suit,
+        entity.value,
+        this.cardTextures!.back,
+        this.cardTextures!.face,
+        this.cardTextures!.ranks[entity.value],
+        this.cardTextures!.suits[entity.suit],
       );
 
       card.sprite.eventMode = "static";
@@ -192,22 +213,22 @@ export class MiniGameScene implements IScene {
 
       card.sprite.on("pointerdown", () => {
         if (this.videoPlaying) return;
-        
+
         if (this.isTutorialActive && this.tutorialService) {
           if (!this.tutorialService.isHighlightMode()) return;
-          
+
           const step = this.tutorialService.currentStep;
           let targetValue = "";
           if (step === TutorialStep.HighlightCard4) targetValue = "4";
           else if (step === TutorialStep.HighlightCard5) targetValue = "5";
           else if (step === TutorialStep.DrawHighlight) {
-              const drawTop = this.miniGameController.getDrawPile().slice(-1)[0];
-              if (card === drawTop) {
-                  this.stopPulse();
-                  this.tutorialService.handleCardClick("");
-                  this.miniGameController.handleDrawClick();
-              }
-              return;
+            const drawTop = this.miniGameController.getDrawPile().slice(-1)[0];
+            if (card === drawTop) {
+              this.stopPulse();
+              this.tutorialService.handleCardClick("");
+              this.miniGameController.handleDrawClick();
+            }
+            return;
           }
 
           if (card.entity.value !== targetValue) return;
@@ -216,9 +237,13 @@ export class MiniGameScene implements IScene {
           this.tutorialService.handleCardClick(card.entity.value);
         }
 
-        const tableauInfo = this.miniGameController.getTableau().find(t => t.viewModel === card);
+        const tableauInfo = this.miniGameController
+          .getTableau()
+          .find((t) => t.viewModel === card);
         if (tableauInfo) {
-          const index = INITIAL_TABLEAU_NODES.findIndex(n => n.id === tableauInfo.node.id);
+          const index = INITIAL_TABLEAU_NODES.findIndex(
+            (n) => n.id === tableauInfo.node.id,
+          );
           this.miniGameController.handleTableauClick(index);
         } else if (this.miniGameController.getDrawPile().includes(card)) {
           this.miniGameController.handleDrawClick();
@@ -230,7 +255,9 @@ export class MiniGameScene implements IScene {
     });
 
     this.miniGameController.initializeGame(cards);
-    this.miniGameController.getDrawPile().forEach(c => c.sprite.visible = false);
+    this.miniGameController
+      .getDrawPile()
+      .forEach((c) => (c.sprite.visible = false));
   }
 
   private stopPulse(): void {
@@ -246,11 +273,16 @@ export class MiniGameScene implements IScene {
     const backgroundSprites = [this.bg];
     if (this.videoSprite) backgroundSprites.push(this.videoSprite);
 
-    backgroundSprites.forEach(sprite => {
+    backgroundSprites.forEach((sprite) => {
       if (sprite && sprite.texture) {
         sprite.x = screenWidth / 2;
         sprite.y = screenHeight / 2;
-        sprite.scale.set(Math.max(screenWidth / sprite.texture.width, screenHeight / sprite.texture.height));
+        sprite.scale.set(
+          Math.max(
+            screenWidth / sprite.texture.width,
+            screenHeight / sprite.texture.height,
+          ),
+        );
       }
     });
 
@@ -261,24 +293,38 @@ export class MiniGameScene implements IScene {
     const logical = this.viewport.getLogicalSize();
     if (!this.cardTextures) return;
 
-    this.layoutManager.apply(logical, this.cardTextures.back.width, this.miniGameController.getTableau(), this.miniGameController.getDrawPile(), this.miniGameController.getActivePile(), this.cardLayer);
+    this.layoutManager.apply(
+      logical,
+      this.cardTextures.back.width,
+      this.miniGameController.getTableau(),
+      this.miniGameController.getDrawPile(),
+      this.miniGameController.getActivePile(),
+      this.cardLayer,
+    );
 
-    const currentCardScale = this.layoutManager.cardW / this.cardTextures.back.width;
+    const currentCardScale =
+      this.layoutManager.cardW / this.cardTextures.back.width;
     if (this.cardPulseAnimation) {
-        this.cardPulseAnimation.updateBaseScale(currentCardScale);
+      this.cardPulseAnimation.updateBaseScale(currentCardScale);
     }
 
     if (this.goalText) {
-      this.goalText.position.set(screenWidth - this.goalText.width - 20, 10 + 14 + 20);
+      this.goalText.position.set(
+        screenWidth - this.goalText.width - 20,
+        10 + 14 + 20,
+      );
     }
 
     if (this.winAnimationShown && this.winTitle && this.winSubtitle) {
       this.winLayer.position.set(screenWidth / 2, screenHeight / 2);
-      this.uiLayoutHandler.apply(screenWidth, screenHeight, { title: this.winTitle, sub: this.winSubtitle });
+      this.uiLayoutHandler.apply(screenWidth, screenHeight, {
+        title: this.winTitle,
+        sub: this.winSubtitle,
+      });
     }
 
     if (this.isTutorialActive && this.tutorialService) {
-        this.tutorialService.updateVisuals();
+      this.tutorialService.updateVisuals();
     }
 
     this.menuButton.resize(screenWidth, screenHeight);
@@ -297,73 +343,127 @@ export class MiniGameScene implements IScene {
       const step = this.tutorialService.currentStep;
       let highlightRect: PIXI.Rectangle | undefined;
 
-      if (step === TutorialStep.HighlightCard4 || step === TutorialStep.HighlightCard5) {
+      if (
+        step === TutorialStep.HighlightCard4 ||
+        step === TutorialStep.HighlightCard5
+      ) {
         const targetValue = step === TutorialStep.HighlightCard4 ? "4" : "5";
-        this.miniGameController.getTableau().forEach(t => {
+        this.miniGameController.getTableau().forEach((t) => {
           const isTarget = t.viewModel.entity.value === targetValue;
-          t.viewModel.sprite.tint = isTarget ? 0xffffff : 0x666666;
+          (t.viewModel.sprite as PIXI.Sprite).tint = isTarget
+            ? 0xffffff
+            : 0x666666;
           if (isTarget) {
             const globalPos = t.viewModel.sprite.getGlobalPosition();
             const bounds = t.viewModel.sprite.getBounds();
-            highlightRect = new PIXI.Rectangle(bounds.x, bounds.y, bounds.width, bounds.height);
-            this.tutorialService!.updateTutAssets(globalPos.x, globalPos.y, this.layoutManager.cardH);
-            if (!this.cardPulseAnimation || (this.cardPulseAnimation as any).targetCard !== t.viewModel) {
-                this.stopPulse();
-                this.cardPulseAnimation = new CardPulseAnimation(t.viewModel.sprite);
-                (this.cardPulseAnimation as any).targetCard = t.viewModel;
-                this.animationEngine.add(this.cardPulseAnimation);
+            highlightRect = new PIXI.Rectangle(
+              bounds.x,
+              bounds.y,
+              bounds.width,
+              bounds.height,
+            );
+            this.tutorialService!.updateTutAssets(
+              globalPos.x,
+              globalPos.y,
+              this.layoutManager.cardH,
+            );
+            if (
+              !this.cardPulseAnimation ||
+              (this.cardPulseAnimation as any).targetCard !== t.viewModel
+            ) {
+              this.stopPulse();
+              this.cardPulseAnimation = new CardPulseAnimation(
+                t.viewModel.sprite,
+              );
+              (this.cardPulseAnimation as any).targetCard = t.viewModel;
+              this.animationEngine.add(this.cardPulseAnimation);
             }
           }
         });
       } else if (step === TutorialStep.DrawHighlight) {
-          const drawTop = this.miniGameController.getDrawPile().slice(-1)[0];
-          if (drawTop) {
-              drawTop.sprite.visible = true;
-              drawTop.sprite.tint = 0xffffff;
-              const globalPos = drawTop.sprite.getGlobalPosition();
-              const bounds = drawTop.sprite.getBounds();
-              highlightRect = new PIXI.Rectangle(bounds.x, bounds.y, bounds.width, bounds.height);
-              this.tutorialService!.updateTutAssets(globalPos.x, globalPos.y, this.layoutManager.cardH);
-              if (!this.cardPulseAnimation || (this.cardPulseAnimation as any).targetCard !== drawTop) {
-                  this.stopPulse();
-                  this.cardPulseAnimation = new CardPulseAnimation(drawTop.sprite);
-                  (this.cardPulseAnimation as any).targetCard = drawTop;
-                  this.animationEngine.add(this.cardPulseAnimation);
-              }
+        const drawTop = this.miniGameController.getDrawPile().slice(-1)[0];
+        if (drawTop) {
+          drawTop.sprite.visible = true;
+          (drawTop.sprite as PIXI.Sprite).tint = 0xffffff;
+          const globalPos = drawTop.sprite.getGlobalPosition();
+          const bounds = drawTop.sprite.getBounds();
+          highlightRect = new PIXI.Rectangle(
+            bounds.x,
+            bounds.y,
+            bounds.width,
+            bounds.height,
+          );
+          this.tutorialService!.updateTutAssets(
+            globalPos.x,
+            globalPos.y,
+            this.layoutManager.cardH,
+          );
+          if (
+            !this.cardPulseAnimation ||
+            (this.cardPulseAnimation as any).targetCard !== drawTop
+          ) {
+            this.stopPulse();
+            this.cardPulseAnimation = new CardPulseAnimation(drawTop.sprite);
+            (this.cardPulseAnimation as any).targetCard = drawTop;
+            this.animationEngine.add(this.cardPulseAnimation);
           }
-          this.miniGameController.getTableau().forEach(t => t.viewModel.sprite.tint = 0x666666);
+        }
+        this.miniGameController.getTableau().forEach((t) => {
+          (t.viewModel.sprite as PIXI.Sprite).tint = 0x666666;
+        });
       } else {
-        this.miniGameController.getTableau().forEach(t => t.viewModel.sprite.tint = 0x666666);
+        this.miniGameController.getTableau().forEach((t) => {
+          (t.viewModel.sprite as PIXI.Sprite).tint = 0x666666;
+        });
       }
-      
+
       this.tutorialService.updateVisuals(highlightRect);
     } else {
-        this.miniGameController.getDrawPile().forEach(c => {
-            if (!this.drawTutorialTriggered) c.sprite.visible = false;
+      this.miniGameController.getDrawPile().forEach((c) => {
+        if (!this.drawTutorialTriggered) c.sprite.visible = false;
+      });
+    }
+
+    if (
+      !this.isTutorialActive &&
+      !this.drawTutorialTriggered &&
+      this.miniGameController.getTableau().length > 0
+    ) {
+      const activePile = this.miniGameController.getActivePile();
+      const activeCard = activePile[activePile.length - 1];
+      if (activeCard) {
+        const hasMatch = this.miniGameController.getTableau().some((t) => {
+          const isCovered = t.node.coveredBy.some(
+            (covId) =>
+              this.stackManager.getStack(`tableau-${covId}`).length > 0,
+          );
+          return (
+            !isCovered &&
+            SolitaireLogic.isMatch(
+              t.viewModel.entity.value,
+              activeCard.entity.value,
+            )
+          );
         });
-    }
 
-    if (!this.isTutorialActive && !this.drawTutorialTriggered && this.miniGameController.getTableau().length > 0) {
-        const activePile = this.miniGameController.getActivePile();
-        const activeCard = activePile[activePile.length - 1];
-        if (activeCard) {
-            const hasMatch = this.miniGameController.getTableau().some(t => {
-                const isCovered = t.node.coveredBy.some(covId => this.stackManager.getStack(`tableau-${covId}`).length > 0);
-                return !isCovered && SolitaireLogic.isMatch(t.viewModel.entity.value, activeCard.entity.value);
-            });
-            
-            if (!hasMatch) {
-                this.drawTutorialTriggered = true;
-                this.isTutorialActive = true;
-                if (this.tutorialService) {
-                    this.tutorialService.triggerDrawTutorial();
-                    this.miniGameController.getDrawPile().forEach(c => c.sprite.visible = true);
-                }
-            }
+        if (!hasMatch) {
+          this.drawTutorialTriggered = true;
+          this.isTutorialActive = true;
+          if (this.tutorialService) {
+            this.tutorialService.triggerDrawTutorial();
+            this.miniGameController
+              .getDrawPile()
+              .forEach((c) => (c.sprite.visible = true));
+          }
         }
+      }
     }
 
-    if (tableauCount === 0 && !this.winAnimationShown && this.miniGameStore.isBuilt) {
+    if (
+      tableauCount === 0 &&
+      !this.winAnimationShown &&
+      this.miniGameStore.isBuilt
+    ) {
       this.showWinAnimation();
     }
   }
@@ -372,10 +472,21 @@ export class MiniGameScene implements IScene {
     this.winAnimationShown = true;
     this.winLayer.removeChildren();
     this.winLayer.position.set(window.innerWidth / 2, window.innerHeight / 2);
-    this.winTitle = new BitmapTextComponent("menuTitleFont", "Congratulations", true);
-    this.winSubtitle = new BitmapTextComponent("menuSubtitleFont", "You helped Benji get the treats!", true);
+    this.winTitle = new BitmapTextComponent(
+      "menuTitleFont",
+      "Congratulations",
+      true,
+    );
+    this.winSubtitle = new BitmapTextComponent(
+      "menuSubtitleFont",
+      "You helped Benji get the treats!",
+      true,
+    );
     this.winLayer.addChild(this.winTitle, this.winSubtitle);
-    this.uiLayoutHandler.apply(window.innerWidth, window.innerHeight, { title: this.winTitle, sub: this.winSubtitle });
+    this.uiLayoutHandler.apply(window.innerWidth, window.innerHeight, {
+      title: this.winTitle,
+      sub: this.winSubtitle,
+    });
     this.winLayer.eventMode = "static";
     this.winLayer.cursor = "pointer";
     this.winLayer.once("pointerdown", () => this.playWinVideo());
@@ -389,43 +500,62 @@ export class MiniGameScene implements IScene {
     this.debugLayer.visible = false;
     this.winLayer.visible = false;
     this.videoSprite.visible = true;
-    const videoSource = this.videoSprite.texture.baseTexture.resource.source as HTMLVideoElement;
+
+    const videoResource = this.videoSprite.texture.baseTexture
+      .resource as PIXI.VideoResource;
+    const videoSource = videoResource.source as HTMLVideoElement;
+
     if (videoSource) {
-      videoSource.play().catch(e => console.error(e));
-      videoSource.onended = () => { 
-          this.videoPlaying = false; 
-          this.navigate("menu"); 
+      videoSource.play().catch((e) => console.error(e));
+      videoSource.onended = () => {
+        this.videoPlaying = false;
+        this.navigate("menu");
       };
     }
   }
 
-  getContainer(): PIXI.Container { return this.container; }
+  getContainer(): PIXI.Container {
+    return this.container;
+  }
 
   onExit(): void {
     if (this.videoSprite) {
-      const videoSource = this.videoSprite.texture.baseTexture.resource.source as HTMLVideoElement;
-      if (videoSource) { videoSource.pause(); videoSource.onended = null; }
+      const videoResource = this.videoSprite.texture.baseTexture
+        .resource as PIXI.VideoResource;
+      const videoSource = videoResource.source as HTMLVideoElement;
+
+      if (videoSource) {
+        videoSource.pause();
+        videoSource.onended = null;
+      }
       this.videoSprite.destroy();
       this.videoSprite = null;
     }
+
     this.menuButton.visible = false;
-    if (this.menuButton.parent) this.menuButton.parent.removeChild(this.menuButton);
+    if (this.menuButton.parent)
+      this.menuButton.parent.removeChild(this.menuButton);
+
     this.animationEngine.clear();
 
     if (this.cardLayer) {
-        this.cardLayer.removeChildren().forEach((child) => child.destroy({ children: true }));
+      this.cardLayer
+        .removeChildren()
+        .forEach((child) => child.destroy({ children: true }));
     }
 
     if (this.debugLayer) {
-        this.debugLayer.removeChildren();
+      this.debugLayer.removeChildren();
     }
 
     if (this.winLayer) {
-        this.winLayer.removeChildren();
+      this.winLayer.removeChildren();
     }
 
     if (this.tutorialLayer) {
-        this.tutorialLayer.removeChildren().forEach((child) => child.destroy({ children: true }));
+      this.tutorialLayer
+        .removeChildren()
+        .forEach((child) => child.destroy({ children: true }));
     }
 
     this.cardTextures = null;
@@ -434,15 +564,19 @@ export class MiniGameScene implements IScene {
     this.isTutorialActive = false;
     this.drawTutorialTriggered = false;
     this.tutorialService = null;
-    
+
     if (this.miniGameStore) {
-        this.miniGameStore.resetGame();
+      this.miniGameStore.resetGame();
     }
 
     this.gameContainer.visible = true;
     this.debugLayer.visible = true;
 
-    const stackIds = ["drawPile", "activePile", ...INITIAL_TABLEAU_NODES.map((_, i) => `tableau-${i}`)];
+    const stackIds = [
+      "drawPile",
+      "activePile",
+      ...INITIAL_TABLEAU_NODES.map((_, i) => `tableau-${i}`),
+    ];
     this.stackManager = new CardStackManager(stackIds);
   }
 }
