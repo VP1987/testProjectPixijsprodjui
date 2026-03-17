@@ -87,7 +87,7 @@ export const AssetManifest: AssetsManifest = {
         },
         {
           alias: "tutorialDialogJson",
-          src: "/src/features/MiniGame/data/dialogTutorial/textDialog.json",
+          src: "/textDialog.json",
         },
       ],
     },
